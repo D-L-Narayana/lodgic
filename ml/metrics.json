@@ -1,0 +1,14 @@
+{
+  "ndcg@10_model": 0.8310896317197725,
+  "ndcg@10_price_asc": 0.5642221200124591,
+  "ndcg@10_rating_desc": 0.6665208446801473,
+  "ndcg@10_random": 0.4744613569752163,
+  "test_logloss": 0.2704295301778917,
+  "test_auc": 0.7413552440845568,
+  "train_sessions": 40000,
+  "test_sessions": 10000,
+  "candidates_per_session": 20,
+  "booking_rate": 0.089834,
+  "lift_vs_price_sort_pct": 47.29830721656578,
+  "lift_vs_rating_sort_pct": 24.690718730424564
+}

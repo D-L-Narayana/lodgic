@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lodgic — hotel search & reservation engine (live demo)</title>
+    <meta
+      name="description"
+      content="Interactive demo of Lodgic: availability index, dynamic pricing, learning-to-rank search, double-booking-safe reservations and idempotent payments. The whole engine runs in your browser."
+    />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b3d91'/%3E%3Cpath d='M9 22V10h3v9h6v3z' fill='%23fff'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="wrap">
+        <a class="brand" href="./">Lodgic</a>
+        <nav>
+          <a href="https://github.com/D-L-Narayana/lodgic" rel="noopener">GitHub</a>
+          <a href="https://github.com/D-L-Narayana/lodgic#architecture" rel="noopener">Architecture</a>
+          <a href="https://github.com/D-L-Narayana/lodgic#benchmarks" rel="noopener">Benchmarks</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <section class="hero">
+        <h1>Hotel search &amp; reservation engine</h1>
+        <p>
+          Availability index (segment tree) · demand-based pricing with exact currency rounding · logistic-regression learning-to-rank ·
+          double-booking-safe holds · idempotent payments · LRU/TTL search cache. <strong>Everything below runs in your browser</strong> — the same
+          TypeScript engine that powers the REST API in the repo, on a seeded catalogue of 1,440 hotels in 12 cities.
+        </p>
+      </section>
+
+      <form id="search-form" class="search" autocomplete="off">
+        <label>City <select name="city" id="city"></select></label>
+        <label>Check-in <input type="date" name="checkIn" id="checkIn" required /></label>
+        <label>Check-out <input type="date" name="checkOut" id="checkOut" required /></label>
+        <label>Guests <input type="number" name="guests" id="guests" min="1" max="16" value="2" /></label>
+        <label>Rooms <input type="number" name="rooms" id="rooms" min="1" max="8" value="1" /></label>
+        <label>Currency
+          <select name="currency" id="currency">
+            <option value="">Hotel currency</option>
+            <option>INR</option><option>USD</option><option>EUR</option><option>GBP</option><option>JPY</option><option>SGD</option><option>AED</option><option>KWD</option>
+          </select>
+        </label>
+        <label>Sort
+          <select name="sort" id="sort">
+            <option value="recommended">Recommended (ML)</option>
+            <option value="price_asc">Price: low to high</option>
+            <option value="price_desc">Price: high to low</option>
+            <option value="rating_desc">Guest rating</option>
+            <option value="distance_asc">Distance to centre</option>
+          </select>
+        </label>
+        <label>Traveller
+          <select name="traveller" id="traveller">
+            <option value="">No personalisation</option>
+            <option value="budget">Budget</option>
+            <option value="business">Business</option>
+            <option value="family">Family</option>
+            <option value="leisure">Leisure</option>
+          </select>
+        </label>
+        <label>Min stars <input type="number" name="minStars" id="minStars" min="1" max="5" placeholder="any" /></label>
+        <label class="check"><input type="checkbox" name="freeCancellation" id="freeCancellation" /> Free cancellation only</label>
+        <button type="submit">Search</button>
+      </form>
+
+      <p id="status" class="status" role="status"></p>
+      <section id="results" class="results" aria-live="polite"></section>
+
+      <aside class="panel">
+        <h2>Engine telemetry</h2>
+        <dl id="telemetry" class="telemetry"></dl>
+        <h2>Reservations in this session</h2>
+        <ul id="reservations" class="reservations"></ul>
+        <p class="note">
+          Try to double-book: search dates for a hotel with <em>1 left</em>, then hold it twice. The second attempt is rejected — the availability hold
+          is atomic and all-or-nothing. Test cards: 4242 4242 4242 4242 succeeds, 4000 0000 0000 0002 is declined.
+        </p>
+      </aside>
+    </main>
+
+    <dialog id="book-dialog">
+      <form method="dialog" id="book-form" class="book">
+        <h2 id="book-title">Reserve</h2>
+        <p id="book-summary"></p>
+        <label>Name <input name="name" id="guestName" required value="Asha Rao" /></label>
+        <label>Email <input name="email" id="guestEmail" type="email" required value="asha@example.com" /></label>
+        <label>Card <input name="card" id="card" required value="4242 4242 4242 4242" inputmode="numeric" /></label>
+        <p id="book-error" class="error" role="alert"></p>
+        <ol id="book-steps" class="steps"></ol>
+        <menu>
+          <button type="button" id="book-cancel">Close</button>
+          <button type="button" id="book-hold" class="primary">Hold &amp; pay</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <footer class="wrap foot">
+      <p>
+        Lodgic is an open-source portfolio project by <a href="https://github.com/D-L-Narayana" rel="noopener">D L Narayana</a>. Catalogue and prices are synthetic.
+        Source, tests, benchmarks and the REST API: <a href="https://github.com/D-L-Narayana/lodgic" rel="noopener">github.com/D-L-Narayana/lodgic</a>.
+      </p>
+    </footer>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

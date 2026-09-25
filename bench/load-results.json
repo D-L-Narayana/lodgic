@@ -1,0 +1,10 @@
+{
+  "environment": "Node v20.20.1, single process, autocannon 50 connections x 10 s, client and server on the same 2-vCPU sandbox (numbers are relative, not absolute)",
+  "catalogue": "1,440 hotels / 4,339 room types (120 hotels per city, 12 cities), 35 % pre-sold inventory",
+  "runs": [
+    {"title": "GET /search — 48 distinct popular queries (cache warm, SEARCH_CACHE_TTL_MS=30000)", "requests_per_sec": 9471.5, "latency_ms": {"p50": 4, "p97_5": 10, "p99": 15, "max": 158}, "non2xx": 0, "errors": 0, "total": 94718},
+    {"title": "GET /search — random dates/cities/guests with the cache disabled (SEARCH_CACHE_TTL_MS=0): full filter + availability + quote + rank + facets per request", "requests_per_sec": 1136.46, "latency_ms": {"p50": 41, "p97_5": 80, "p99": 94, "max": 218}, "server_side_handler_ms": {"p50": 0.89, "p95": 2.17, "p99": 3.24}, "non2xx": 0, "errors": 0, "total": 12501},
+    {"title": "GET /health", "requests_per_sec": 27026.19, "latency_ms": {"p50": 1, "p97_5": 3, "p99": 4, "max": 25}, "non2xx": 0, "errors": 0, "total": 297283}
+  ],
+  "takeaway": "The LRU/TTL search cache lifts throughput 8.3x (1.1k -> 9.5k req/s) and cuts p50 latency 10x (41 ms -> 4 ms) on this box; the uncached handler itself runs in ~0.9 ms p50, the rest of the cold-path latency is queueing on a single thread."
+}

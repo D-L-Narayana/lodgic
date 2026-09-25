@@ -1,0 +1,74 @@
+{
+  "node": "v20.20.1",
+  "hotels": 1440,
+  "roomTypes": 4339,
+  "results": [
+    {
+      "name": "search uncached (120 hotels/city: filter + availability + quote + rank + facets)",
+      "iterations": 3000,
+      "opsPerSec": 1385,
+      "avgUs": 722.08
+    },
+    {
+      "name": "search cached (same 300 queries)",
+      "iterations": 30000,
+      "opsPerSec": 48957,
+      "avgUs": 20.43
+    },
+    {
+      "cacheStatsWarm": {
+        "hits": 29900,
+        "misses": 300,
+        "evictions": 0,
+        "expirations": 0,
+        "size": 300,
+        "hitRate": 0.9900662251655629
+      },
+      "cacheStatsUncached": {
+        "hits": 0,
+        "misses": 3200,
+        "evictions": 3190,
+        "expirations": 0,
+        "size": 10,
+        "hitRate": 0
+      }
+    },
+    {
+      "name": "availability rangeMin: segment tree (log n)",
+      "iterations": 1000000,
+      "opsPerSec": 4516224,
+      "avgUs": 0.22
+    },
+    {
+      "name": "availability rangeMin: linear scan (n)",
+      "iterations": 1000000,
+      "opsPerSec": 49271581,
+      "avgUs": 0.02
+    },
+    {
+      "name": "rangeMin over 365 nights (occupancy report): segment tree",
+      "iterations": 1000000,
+      "opsPerSec": 4752991,
+      "avgUs": 0.21
+    },
+    {
+      "name": "rangeMin over 365 nights (occupancy report): linear scan",
+      "iterations": 1000000,
+      "opsPerSec": 3041224,
+      "avgUs": 0.33
+    },
+    {
+      "name": "availability hold+release (3 nights)",
+      "iterations": 1000000,
+      "opsPerSec": 1463168,
+      "avgUs": 0.68
+    },
+    {
+      "name": "reservation create (idempotent, held)",
+      "iterations": 100000,
+      "opsPerSec": 51643,
+      "avgUs": 19.36
+    }
+  ],
+  "sink": true
+}
