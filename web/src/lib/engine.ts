@@ -55,11 +55,24 @@ const PHOTO_IDS = [
   "1561501900-3701fa6a0864", "1499793983690-e29da59ef1c2",
 ];
 const DESTINATION_IDS = ["1476514525535-07fb3b4ae5f1", "1506905925346-21bda4d32df4", "1520250497591-112f2f40a3f4", "1540541338287-41700207dee6", "1519449556851-5720b33024e7", "1600011689032-8b628b8a8747", "1584132967334-10e028bd69f7", "1499793983690-e29da59ef1c2", "1549294413-26f195200c16", "1542314831-068cd1dbfeeb"];
+/** Featured destinations get a dedicated, distinct photo so the landing rail never repeats an image. */
+const CITY_PHOTO: Record<string, string> = {
+  Goa: "1512343879784-a960bf40e7f2",
+  Paris: "1502602898657-3e91760cbb34",
+  Tokyo: "1540959733332-eab4deabeeaf",
+  Bengaluru: "1596176530529-78163a4f7af2",
+  Lisbon: "1585208798174-6cedd86e019a",
+  Bali: "1537996194471-e657df975ab4",
+  "New York": "1496442226666-8d4d0e62e6e9",
+  Dubai: "1512453979798-5ea266f8880c",
+  Singapore: "1525625293386-3f8f99389edd",
+  London: "1513635269975-59663e0ac1ad",
+};
 export function hotelPhotos(hotelId: string, count = 5, w = 900): string[] {
   const start = hashString(hotelId) % PHOTO_IDS.length;
   return Array.from({ length: count }, (_, i) => `https://images.unsplash.com/photo-${PHOTO_IDS[(start + i * 11) % PHOTO_IDS.length]}?auto=format&fit=crop&w=${w}&q=70`);
 }
-export const cityPhoto = (city: string, w = 800): string => `https://images.unsplash.com/photo-${DESTINATION_IDS[hashString(city) % DESTINATION_IDS.length]}?auto=format&fit=crop&w=${w}&q=70`;
+export const cityPhoto = (city: string, w = 800): string => `https://images.unsplash.com/photo-${CITY_PHOTO[city] ?? DESTINATION_IDS[hashString(city) % DESTINATION_IDS.length]}?auto=format&fit=crop&w=${w}&q=70`;
 
 /* ---------- Bookings persistence (localStorage) ---------- */
 const KEY = "lodgic-bookings-v1";

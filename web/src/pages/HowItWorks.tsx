@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useTitle } from "../lib/theme";
 import { Link } from "react-router-dom";
 import { RANKER_MODEL } from "../../../src/core/model.js";
 import { PageTitle } from "../components/ui";
@@ -58,21 +58,19 @@ const steps = [
 ];
 
 export function HowItWorks() {
-  useEffect(() => {
-    document.title = "How it works — Lodgic";
-  }, []);
+  useTitle("How it works — Lodgic");
   return (
     <div className="container-x py-8">
       <PageTitle eyebrow="Architecture" title="How Lodgic works">
-        <a href="https://github.com/D-L-Narayana/lodgic" className="btn btn-ghost btn-sm" rel="noopener">Read the source</a>
+        <a href="https://github.com/D-L-Narayana/lodgic" className="btn btn-ghost btn-sm" rel="noopener noreferrer" target="_blank">Read the source</a>
       </PageTitle>
-      <div className="card p-4 md:p-6 rise">
-        <Diagram />
+      <div className="card p-4 md:p-6 rise overflow-x-auto">
+        <div className="min-w-[620px]"><Diagram /></div>
       </div>
       <ol className="grid md:grid-cols-2 gap-4 mt-6">
         {steps.map((s, i) => (
           <li key={s.n} className={`card p-5 rise rise-d${Math.min(i + 1, 4)}`}>
-            <span className="font-display text-3xl text-accent/70">{s.n}</span>
+            <span className="font-display text-3xl text-accent-text/70">{s.n}</span>
             <h2 className="text-lg mt-1">{s.title}</h2>
             <p className="text-sm muted mt-2 leading-relaxed">{s.body}</p>
           </li>
@@ -89,7 +87,7 @@ export function HowItWorks() {
         </div>
         <div>
           <span className="eyebrow">Two hosts, one engine</span>
-          <p className="mt-1 muted">This page is running the engine in your tab. The same code answers <code>/api/search</code> as a serverless function. <Link to="/admin" className="text-accent font-medium">Open the dashboard →</Link></p>
+          <p className="mt-1 muted">This page is running the engine in your tab. The same code answers <code>/api/search</code> as a serverless function. <Link to="/admin" className="link">Open the dashboard →</Link></p>
         </div>
       </section>
     </div>

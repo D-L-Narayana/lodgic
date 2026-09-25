@@ -2,10 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Lodgic — hotel search & reservation engine</title>
     <meta name="description" content="Search 4,000 hotels in 40 cities with live availability, demand-based pricing and a learning-to-rank model — a full booking product built on an open-source engine." />
-    <meta name="theme-color" content="#0f5e6b" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#faf8f4" />
+    <meta property="og:title" content="Lodgic — hotel search & reservation engine" />
+    <meta property="og:description" content="Search 4,000 hotels in 40 cities with live availability, demand-based pricing and an explainable learning-to-rank model." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://lodgic-jade.vercel.app/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,8 +22,10 @@
       (function () {
         try {
           var t = localStorage.getItem("lodgic-theme");
-          if (t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.dataset.theme = "dark";
-          else document.documentElement.dataset.theme = "light";
+          var dark = t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.dataset.theme = dark ? "dark" : "light";
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.content = dark ? "#141a20" : "#faf8f4";
         } catch (e) {}
       })();
     </script>

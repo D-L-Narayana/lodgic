@@ -1,5 +1,6 @@
 import { CheckCircle2, CreditCard, Lock, ShieldCheck, XCircle } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { useTitle } from "../lib/theme";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { TEST_CARDS, luhnValid } from "../../../src/core/payments.js";
 import { ReservationError } from "../../../src/core/reservations.js";
@@ -27,9 +28,7 @@ export function Checkout() {
   const idem = useRef(`web-${crypto.randomUUID()}`);
   const held = useRef<Reservation | null>(null);
 
-  useEffect(() => {
-    document.title = "Checkout — Lodgic";
-  }, []);
+  useTitle("Checkout — Lodgic");
 
   if (!hotel || !room) {
     return (
@@ -43,7 +42,18 @@ export function Checkout() {
   const cardDigits = card.replace(/\s+/g, "");
   const cardOk = /^\d{12,19}$/.test(cardDigits) && luhnValid(cardDigits);
   const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
-  const canPay = cardOk && emailOk && name.trim().length > 1 && /^\d{2}\/\d{2}$/.test(expiry) && /^\d{3,4}$/.test(cvc) && !busy;
+  const expiryOk = (() => {
+    const m = /^(\d{2})\/(\d{2})$/.exec(expiry);
+    if (!m) return false;
+    const mm = Number(m[1]), yy = 2000 + Number(m[2]);
+    if (mm < 1 || mm > 12) return false;
+    const now = new Date();
+    return yy > now.getFullYear() || (yy === now.getFullYear() && mm >= now.getMonth() + 1);
+  })();
+  const nameOk = name.trim().length > 1;
+  const cvcOk = /^\d{3,4}$/.test(cvc);
+  const canPay = cardOk && emailOk && nameOk && expiryOk && cvcOk && !busy;
+  const formatExpiry = (v: string) => { const d = v.replace(/\D/g, "").slice(0, 4); return d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d; };
 
   const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -101,26 +111,26 @@ export function Checkout() {
         <div>
           <span className="eyebrow">Checkout</span>
           <h1 className="text-[clamp(1.5rem,1.2rem+1.2vw,2.1rem)] mt-1">Almost there</h1>
-          <p className="muted text-sm mt-1">Mock payment — no real money moves. Test cards: <code className="chip">4242 4242 4242 4242</code> succeeds, <code className="chip">4000 0000 0000 0002</code> is declined.</p>
+          <p className="muted text-sm mt-1">Mock payment — no real money moves. Test cards: <button type="button" className="chip tabular" onClick={() => setCard("4242 4242 4242 4242")}>4242 4242 4242 4242</button> succeeds, <button type="button" className="chip tabular" onClick={() => setCard("4000 0000 0000 0002")}>4000 0000 0000 0002</button> is declined.</p>
         </div>
         <form className="card p-5 grid gap-4" onSubmit={(e) => { e.preventDefault(); void pay(); }} aria-label="Guest and payment details">
           <h2 className="text-lg">Guest</h2>
           <div className="grid sm:grid-cols-2 gap-3">
-            <label><span className="label">Full name</span><input className="input" value={name} onChange={(e) => setName(e.target.value)} required autoComplete="name" /></label>
-            <label><span className="label">Email</span><input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" aria-invalid={!emailOk} /></label>
+            <label><span className="label">Full name</span><input className="input" value={name} onChange={(e) => setName(e.target.value)} required autoComplete="name" aria-invalid={!nameOk} /></label>
+            <label><span className="label">Email</span><input className="input" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" aria-invalid={!emailOk} />{!emailOk && email.length > 0 && <span className="text-xs text-coral mt-1 block">Enter a valid email address.</span>}</label>
           </div>
           <h2 className="text-lg mt-2 flex items-center gap-2"><CreditCard size={18} className="text-accent" /> Payment</h2>
           <label>
             <span className="label">Card number</span>
-            <input className="input tabular" inputMode="numeric" value={card} onChange={(e) => setCard(e.target.value.replace(/[^\d]/g, "").slice(0, 19).replace(/(\d{4})(?=\d)/g, "$1 "))} aria-invalid={!cardOk} autoComplete="cc-number" />
-            {!cardOk && card.length > 0 && <span className="text-xs text-coral">Card number fails the Luhn check.</span>}
+            <input className="input tabular" inputMode="numeric" placeholder="1234 5678 9012 3456" value={card} onChange={(e) => setCard(e.target.value.replace(/[^\d]/g, "").slice(0, 19).replace(/(\d{4})(?=\d)/g, "$1 "))} aria-invalid={!cardOk} autoComplete="cc-number" />
+            {!cardOk && card.length > 0 && <span className="text-xs text-coral mt-1 block">Card number fails the Luhn check.</span>}
           </label>
           <div className="grid grid-cols-2 gap-3">
-            <label><span className="label">Expiry</span><input className="input tabular" value={expiry} onChange={(e) => setExpiry(e.target.value)} placeholder="MM/YY" autoComplete="cc-exp" /></label>
-            <label><span className="label">CVC</span><input className="input tabular" inputMode="numeric" value={cvc} onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))} autoComplete="cc-csc" /></label>
+            <label><span className="label">Expiry</span><input className="input tabular" inputMode="numeric" value={expiry} onChange={(e) => setExpiry(formatExpiry(e.target.value))} placeholder="MM/YY" autoComplete="cc-exp" aria-invalid={!expiryOk} />{!expiryOk && expiry.length >= 5 && <span className="text-xs text-coral mt-1 block">Use MM/YY, not in the past.</span>}</label>
+            <label><span className="label">CVC</span><input className="input tabular" inputMode="numeric" value={cvc} onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))} autoComplete="cc-csc" placeholder="123" aria-invalid={!cvcOk} /></label>
           </div>
-          {error && <p role="alert" className="text-sm text-coral bg-coral-soft rounded-lg p-3">{error}</p>}
-          <button type="submit" className="btn btn-primary h-12" disabled={!canPay}>
+          {error && <p role="alert" className="text-sm text-coral-ink bg-coral-soft rounded-lg p-3">{error}</p>}
+          <button type="submit" className="btn btn-primary btn-lg" disabled={!canPay} aria-busy={busy}>
             <Lock size={16} /> {busy ? "Processing…" : held.current && held.current.status === "HELD" ? `Retry payment · ${preview ? formatMoney(preview.total, preview.currency) : ""}` : `Pay ${preview ? formatMoney(preview.total, preview.currency) : ""}`}
           </button>
           <p className="text-xs faint inline-flex items-center gap-1"><ShieldCheck size={12} /> Idempotency key <code className="tabular">{idem.current.slice(0, 18)}…</code> — retries reuse it, so you can never be booked or charged twice.</p>
@@ -145,7 +155,7 @@ export function Checkout() {
 
       <aside className="rise rise-d2">
         <div className="card overflow-hidden lg:sticky lg:top-20">
-          <Img src={hotelPhotos(hotel.id, 1, 800)[0]!} alt="" className="h-44" />
+          <Img src={hotelPhotos(hotel.id, 1, 800)[0]!} alt="" className="h-44" priority />
           <div className="p-5 grid gap-3">
             <div>
               <h2 className="text-lg leading-tight">{hotel.name}</h2>

@@ -47,8 +47,11 @@ offline-first with no backend round-trip.
 | **Ops** `/admin` | Occupancy by week from the segment trees, search latency p50/p95, cache hit rate, materialised-tree counter, LTR weights, star mix, reservations table — live for your session |
 | **How it works** `/how-it-works` | Architecture diagram and the six ideas behind the engine |
 
-Design: warm sand surfaces with a deep-lagoon accent, Fraunces display + Satoshi body, light/dark themes (`prefers-color-scheme` + toggle),
-fluid type, 4-px spacing, reduced-motion aware micro-animations, keyboard-navigable combobox/dialogs with ARIA roles, responsive from 360 px up.
+**Design system.** Warm sand surfaces with a deep-lagoon accent and a coral counterpoint; Fraunces display + Satoshi body. One set of
+colour roles defined twice (light and dark) with separate shades for *filled* controls and *text/links*, so buttons keep AA contrast in
+both themes; the theme follows `prefers-color-scheme` live until you choose (persisted, no flash on load), and Leaflet, the date picker
+and every chart read the same variables. Keyboard-navigable combobox/dialogs with ARIA roles, skip-link, focus-visible rings,
+`aria-invalid` + inline errors on the payment form, reduced-motion aware micro-animations, responsive from 360 px up.
 
 ## What it does
 

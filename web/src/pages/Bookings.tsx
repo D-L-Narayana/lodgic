@@ -1,5 +1,6 @@
 import { CalendarCheck, Download, PartyPopper, Ticket } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useTitle } from "../lib/theme";
 import { Link, useParams } from "react-router-dom";
 import { EmptyState, Img } from "../components/ui";
 import { engine, fmtDate, formatMoney, loadBookings, updateStoredBooking, type StoredBooking } from "../lib/engine";
@@ -20,9 +21,7 @@ function icsFor(b: StoredBooking): string {
 export function Confirmation() {
   const { id = "" } = useParams();
   const b = loadBookings().find((x) => x.reservation.id === id);
-  useEffect(() => {
-    document.title = "Booking confirmed — Lodgic";
-  }, []);
+  useTitle("Booking confirmed — Lodgic");
   if (!b) {
     return (
       <div className="container-x py-10">
@@ -35,14 +34,14 @@ export function Confirmation() {
     <div className="container-x py-10 max-w-3xl">
       <div className="card overflow-hidden pop">
         <div className="bg-accent text-accent-ink p-6 flex items-center gap-4">
-          <span className="grid place-items-center size-12 rounded-full bg-white/15"><PartyPopper size={24} /></span>
+          <PartyPopper size={28} aria-hidden="true" />
           <div>
             <span className="text-xs font-semibold uppercase tracking-wider opacity-80">Booking confirmed</span>
             <h1 className="text-2xl leading-tight">You're going to {b.city}!</h1>
           </div>
         </div>
         <div className="grid sm:grid-cols-[200px_1fr]">
-          <Img src={b.photo} alt="" className="h-40 sm:h-full" />
+          <Img src={b.photo} alt="" className="h-40 sm:h-full sm:min-h-48" />
           <div className="p-6 grid gap-4">
             <div>
               <h2 className="text-lg">{b.hotelName}</h2>
@@ -73,9 +72,8 @@ export function Confirmation() {
 
 export function Bookings() {
   const [list, setList] = useState<StoredBooking[]>(() => loadBookings());
-  useEffect(() => {
-    document.title = "My bookings — Lodgic";
-  }, []);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  useTitle("My bookings — Lodgic");
 
   function cancel(b: StoredBooking) {
     try {
@@ -86,6 +84,7 @@ export function Bookings() {
       updateStoredBooking({ ...b.reservation, status: "CANCELLED", cancelledAt: Date.now() });
     }
     setList(loadBookings());
+    setConfirmId(null);
   }
 
   return (
@@ -104,7 +103,7 @@ export function Bookings() {
             const st = STATUS[r.status] ?? STATUS.CANCELLED!;
             return (
               <li key={r.id} className={`card overflow-hidden grid sm:grid-cols-[200px_1fr] rise`} style={{ animationDelay: `${i * 50}ms` }}>
-                <Img src={b.photo} alt="" className="h-36 sm:h-full" />
+                <Img src={b.photo} alt="" className="h-36 sm:h-full sm:min-h-36" />
                 <div className="p-5 grid gap-3">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
@@ -117,10 +116,17 @@ export function Bookings() {
                     <span className="tabular text-sm"><span className="faint">Total</span> <strong>{formatMoney(r.quote.total, r.quote.currency)}</strong> <span className="faint">· {r.id}</span></span>
                     <span className="flex gap-2">
                       {r.status === "CONFIRMED" && <Link to={`/confirmation/${r.id}`} className="btn btn-ghost btn-sm">View</Link>}
-                      {(r.status === "CONFIRMED" || r.status === "HELD") && (
-                        <button type="button" className="btn btn-ghost btn-sm text-coral" onClick={() => cancel(b)}>
+                      {(r.status === "CONFIRMED" || r.status === "HELD") && confirmId !== r.id && (
+                        <button type="button" className="btn btn-danger btn-sm" onClick={() => setConfirmId(r.id)}>
                           {r.status === "CONFIRMED" ? "Cancel & refund" : "Release hold"}
                         </button>
+                      )}
+                      {confirmId === r.id && (
+                        <span className="inline-flex items-center gap-2 text-sm" role="alertdialog" aria-label="Confirm cancellation">
+                          <span className="muted">{r.status === "CONFIRMED" ? "Refund and release the room?" : "Release this hold?"}</span>
+                          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setConfirmId(null)}>Keep</button>
+                          <button type="button" className="btn btn-primary btn-sm" onClick={() => cancel(b)}>Yes, {r.status === "CONFIRMED" ? "cancel" : "release"}</button>
+                        </span>
                       )}
                     </span>
                   </div>

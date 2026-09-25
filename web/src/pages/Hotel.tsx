@@ -1,5 +1,6 @@
-import { ArrowLeft, BedDouble, Check, MapPin, Users } from "lucide-react";
+import { ArrowLeft, BedDouble, Check, ChevronLeft, ChevronRight, MapPin, Users } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useTitle } from "../lib/theme";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { isoToDay } from "../../../src/core/calendar.js";
 import { quote as quoteFor } from "../../../src/core/pricing.js";
@@ -16,6 +17,7 @@ export function HotelPage() {
   const hotel = engine.hotelById.get(id);
   const [photo, setPhoto] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
+  useTitle(hotel ? `${hotel.name}, ${hotel.city} — Lodgic` : "Hotel not found — Lodgic");
 
   if (!hotel) {
     return (
@@ -50,24 +52,26 @@ export function HotelPage() {
         <ArrowLeft size={14} /> Back to {q.city} results
       </Link>
 
-      {/* Gallery */}
-      <div className="grid md:grid-cols-[2fr_1fr] gap-2 h-[340px] md:h-[420px] rise">
-        <button type="button" className="relative rounded-xl2 overflow-hidden group" onClick={() => setPhoto((photo + 1) % photos.length)} aria-label="Next photo">
-          <Img src={photos[photo]!} alt={`${hotel.name} photo ${photo + 1}`} className="h-full" />
-          <span className="absolute bottom-3 left-3 chip bg-black/60 text-white border-0">{photo + 1} / {photos.length}</span>
-        </button>
-        <div className="hidden md:grid grid-rows-2 gap-2">
+      {/* Gallery — every image is absolutely positioned inside a fixed-height cell, so nothing can overflow */}
+      <div className="grid md:grid-cols-[2fr_1fr] gap-2 h-[300px] sm:h-[360px] md:h-[440px] rise">
+        <div className="relative min-h-0 rounded-xl2 overflow-hidden group bg-bg2">
+          <Img key={photos[photo]} src={photos[photo]!} alt={`${hotel.name} photo ${photo + 1} of ${photos.length}`} className="absolute inset-0" priority />
+          <button type="button" onClick={() => setPhoto((photo + photos.length - 1) % photos.length)} className="btn btn-icon absolute left-3 top-1/2 -translate-y-1/2 bg-card/90 text-ink shadow-card hover:bg-card" aria-label="Previous photo"><ChevronLeft size={18} /></button>
+          <button type="button" onClick={() => setPhoto((photo + 1) % photos.length)} className="btn btn-icon absolute right-3 top-1/2 -translate-y-1/2 bg-card/90 text-ink shadow-card hover:bg-card" aria-label="Next photo"><ChevronRight size={18} /></button>
+          <span className="absolute bottom-3 left-3 chip chip-dark tabular" aria-live="polite">{photo + 1} / {photos.length}</span>
+        </div>
+        <div className="hidden md:grid grid-rows-2 gap-2 min-h-0">
           {photos.slice(1, 3).map((src, i) => (
-            <button key={src} type="button" onClick={() => setPhoto(i + 1)} className={`rounded-xl2 overflow-hidden ${photo === i + 1 ? "ring-2 ring-accent" : ""}`} aria-label={`Show photo ${i + 2}`}>
-              <Img src={src} alt="" className="h-full" />
+            <button key={src} type="button" onClick={() => setPhoto(i + 1)} className={`relative min-h-0 rounded-xl2 overflow-hidden ${photo === i + 1 ? "ring-2 ring-accent ring-offset-2 ring-offset-bg" : ""}`} aria-label={`Show photo ${i + 2}`} aria-pressed={photo === i + 1}>
+              <Img src={src} alt="" className="absolute inset-0" />
             </button>
           ))}
         </div>
       </div>
-      <div className="rail mt-2 md:hidden">
+      <div className="rail mt-2" role="list" aria-label="All photos">
         {photos.map((src, i) => (
-          <button key={src} type="button" onClick={() => setPhoto(i)} className={`size-16 rounded-lg overflow-hidden ${photo === i ? "ring-2 ring-accent" : ""}`} aria-label={`Show photo ${i + 1}`}>
-            <Img src={src} alt="" className="h-full" />
+          <button key={src} type="button" role="listitem" onClick={() => setPhoto(i)} className={`relative size-16 rounded-lg overflow-hidden ${photo === i ? "ring-2 ring-accent ring-offset-2 ring-offset-bg" : "opacity-80 hover:opacity-100"}`} aria-label={`Show photo ${i + 1}`} aria-pressed={photo === i}>
+            <Img src={src.replace("w=1200", "w=200")} alt="" className="absolute inset-0" />
           </button>
         ))}
       </div>
@@ -107,7 +111,7 @@ export function HotelPage() {
                   type="button"
                   disabled={!o.available}
                   onClick={() => setSelected(o.room.id)}
-                  className={`card p-4 text-left grid sm:grid-cols-[1fr_auto] gap-3 transition-colors ${chosen?.room.id === o.room.id && o.available ? "border-accent ring-2 ring-accent-soft" : ""} ${o.available ? "hover:border-ink3" : "opacity-60"}`}
+                  className={`card p-4 text-left grid sm:grid-cols-[1fr_auto] gap-3 transition-[border-color,box-shadow] ${chosen?.room.id === o.room.id && o.available ? "border-accent shadow-[0_0_0_3px_var(--ring)]" : ""} ${o.available ? "hover:border-ink3 cursor-pointer" : "opacity-60 cursor-not-allowed"}`}
                   aria-pressed={chosen?.room.id === o.room.id}
                 >
                   <div>
@@ -119,7 +123,7 @@ export function HotelPage() {
                     <div className="mt-1.5 flex flex-wrap gap-1.5 text-xs">
                       {o.room.refundable ? <span className="chip chip-ok">Free cancellation</span> : <span className="chip">Non-refundable</span>}
                       {o.room.breakfastIncluded && <span className="chip">Breakfast included</span>}
-                      <span className="chip" title="Occupancy over your dates drives the demand uplift">{Math.round(o.occupancy * 100)}% booked for your dates</span>
+                      <span className="chip" title="Occupancy over your dates drives the demand uplift">{Math.round(o.occupancy * 100)}% booked</span>
                     </div>
                     {!o.fits && <p className="text-xs text-coral mt-2">Too small for {perRoom} guests per room — add rooms or pick a suite.</p>}
                     {o.fits && o.left < rooms && <p className="text-xs text-coral mt-2">Sold out for these dates.</p>}
@@ -165,9 +169,9 @@ export function HotelPage() {
                 </table>
                 <div className="text-xs faint grid gap-1">
                   <span>Demand uplift for {Math.round(chosen.occupancy * 100)}% occupancy is already included. {chosen.quote.nights >= 3 ? "Stays of 3+ nights get a length-of-stay discount." : "Stay 3+ nights for a length-of-stay discount."}</span>
-                  <span>Why it ranks: {chosen.why.join(" · ")} (score {chosen.score.toFixed(3)})</span>
+                  <span>Why it ranks here: {chosen.why.join(" · ")}<span className="sr-only"> (model score {chosen.score.toFixed(3)})</span></span>
                 </div>
-                <button type="button" className="btn btn-primary w-full" onClick={() => navigate(`/checkout/${hotel.id}/${chosen.room.id}?${toSearchParams(q).toString()}`)}>
+                <button type="button" className="btn btn-primary btn-lg w-full" onClick={() => navigate(`/checkout/${hotel.id}/${chosen.room.id}?${toSearchParams(q).toString()}`)}>
                   Reserve {chosen.room.name}
                 </button>
                 <p className="text-xs faint text-center">You won't be charged yet — we hold the room for 10 minutes while you pay.</p>

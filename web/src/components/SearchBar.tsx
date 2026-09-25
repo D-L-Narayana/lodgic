@@ -57,14 +57,14 @@ export function SearchBar({ initial = {}, compact = false, onSearch }: Props) {
   }
 
   const range: DateRange = { from: toDate(checkIn), to: toDate(checkOut) };
-  const field = `relative flex items-center gap-3 px-4 ${compact ? "h-12" : "h-14"} rounded-xl border border-line bg-card text-left hover:border-ink3 transition-colors w-full`;
+  const field = `relative flex items-center gap-3 px-4 ${compact ? "h-12" : "h-14"} rounded-xl border border-line-strong bg-card text-left hover:border-ink3 focus-within:border-accent-text focus-within:shadow-[0_0_0_3px_var(--ring)] transition-[border-color,box-shadow] w-full`;
 
   return (
     <form ref={wrap} onSubmit={submit} role="search" aria-label="Hotel search" className={`grid gap-2 ${compact ? "lg:grid-cols-[1.4fr_1.3fr_1fr_auto]" : "lg:grid-cols-[1.4fr_1.3fr_1fr_auto]"} card p-2 ${compact ? "" : "shadow-float"}`}>
       {/* Destination */}
       <div className="relative">
-        <label className={field} onClick={() => setOpen("city")}>
-          <MapPin size={18} className="text-accent shrink-0" />
+        <label className={field}>
+          <MapPin size={18} className="text-accent-text shrink-0" aria-hidden="true" />
           <span className="grid text-left flex-1 min-w-0">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-ink3">Destination</span>
             <input
@@ -111,11 +111,9 @@ export function SearchBar({ initial = {}, compact = false, onSearch }: Props) {
                     setCity(c.name);
                     setOpen("dates");
                   }}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left text-sm ${i === hi ? "bg-accent-soft" : "hover:bg-bg2"}`}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left text-sm ${i === hi ? "bg-accent-soft text-accent-soft-ink" : "hover:bg-bg2"}`}
                 >
-                  <span className="grid place-items-center size-8 rounded-md bg-bg2 text-ink2">
-                    <MapPin size={14} />
-                  </span>
+                  <MapPin size={14} className="text-ink3" aria-hidden="true" />
                   <span className="grid">
                     <span className="font-medium">{c.name}</span>
                     <span className="text-xs faint">{c.country} · prices in {c.currency}</span>
@@ -130,7 +128,7 @@ export function SearchBar({ initial = {}, compact = false, onSearch }: Props) {
       {/* Dates */}
       <div className="relative">
         <button type="button" className={field} onClick={() => setOpen(open === "dates" ? null : "dates")} aria-haspopup="dialog" aria-expanded={open === "dates"}>
-          <CalendarDays size={18} className="text-accent shrink-0" />
+          <CalendarDays size={18} className="text-accent-text shrink-0" aria-hidden="true" />
           <span className="grid text-left">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-ink3">Dates</span>
             <span className="text-[15px] font-medium">
@@ -167,7 +165,7 @@ export function SearchBar({ initial = {}, compact = false, onSearch }: Props) {
       {/* Guests */}
       <div className="relative">
         <button type="button" className={field} onClick={() => setOpen(open === "guests" ? null : "guests")} aria-haspopup="dialog" aria-expanded={open === "guests"}>
-          <Users size={18} className="text-accent shrink-0" />
+          <Users size={18} className="text-accent-text shrink-0" aria-hidden="true" />
           <span className="grid text-left">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-ink3">Guests</span>
             <span className="text-[15px] font-medium">
@@ -197,14 +195,14 @@ export function SearchBar({ initial = {}, compact = false, onSearch }: Props) {
                 </span>
               </div>
             ))}
-            {guests > rooms * 4 && <p className="text-xs text-coral">Our largest rooms sleep 4 — add a room to fit {guests} guests.</p>}
+            {guests > rooms * 4 && <p className="text-xs text-coral" role="status">Our largest rooms sleep 4 — add a room to fit {guests} guests.</p>}
             <button type="button" className="btn btn-soft btn-sm" onClick={() => setOpen(null)}>Done</button>
           </div>
         )}
       </div>
 
       <button type="submit" className={`btn btn-primary ${compact ? "h-12" : "h-14"} px-6`} disabled={!validCity && suggestions.length === 0}>
-        <Search size={18} /> Search
+        <Search size={18} aria-hidden="true" /> Search
       </button>
     </form>
   );

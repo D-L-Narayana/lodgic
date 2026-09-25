@@ -27,7 +27,7 @@ export default function MapView({ hits, active, onActive, query }: { hits: Searc
 
   return (
     <div className="grid lg:grid-cols-[1fr_320px] gap-4">
-      <div className="card overflow-hidden h-[560px]">
+      <div className="card overflow-hidden h-[420px] sm:h-[560px]">
         <MapContainer center={[city.centre.lat, city.centre.lng]} zoom={12} className="h-full w-full" scrollWheelZoom>
           <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <FitBounds hits={hits} />
@@ -38,17 +38,17 @@ export default function MapView({ hits, active, onActive, query }: { hits: Searc
                   <Img src={hotelPhotos(h.hotel.id, 1, 400)[0]!} alt="" className="h-24 rounded-md" />
                   <strong className="text-sm">{h.hotel.name}</strong>
                   <span className="text-xs">{h.hotel.rating.toFixed(1)}/10 · {h.hotel.distanceToCentreKm.toFixed(1)} km</span>
-                  <Link to={`/hotel/${h.hotel.id}?${toSearchParams(query).toString()}`} className="text-xs font-semibold text-accent">See rooms →</Link>
+                  <Link to={`/hotel/${h.hotel.id}?${toSearchParams(query).toString()}`} className="link text-xs">See rooms →</Link>
                 </div>
               </Popup>
             </Marker>
           ))}
         </MapContainer>
       </div>
-      <ol className="grid gap-2 max-h-[560px] overflow-auto pr-1">
+      <ol className="grid gap-2 lg:max-h-[560px] overflow-auto pr-1" aria-label="Hotels on the map">
         {hits.map((h, i) => (
           <li key={h.hotel.id}>
-            <Link to={`/hotel/${h.hotel.id}?${toSearchParams(query).toString()}`} onMouseEnter={() => onActive(h.hotel.id)} onFocus={() => onActive(h.hotel.id)} className={`card p-3 flex gap-3 items-center hover-lift ${active === h.hotel.id ? "border-accent" : ""}`}>
+            <Link to={`/hotel/${h.hotel.id}?${toSearchParams(query).toString()}`} onMouseEnter={() => onActive(h.hotel.id)} onFocus={() => onActive(h.hotel.id)} className={`card p-3 flex gap-3 items-center hover-lift ${active === h.hotel.id ? "border-accent shadow-[0_0_0_3px_var(--ring)]" : ""}`}>
               <Img src={hotelPhotos(h.hotel.id, 1, 200)[0]!} alt="" className="size-14 rounded-lg shrink-0" />
               <span className="grid min-w-0 flex-1">
                 <span className="text-xs faint tabular">#{i + 1} <Stars n={h.hotel.stars} /></span>
