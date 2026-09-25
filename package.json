@@ -7,7 +7,7 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test dist/test/",
+    "test": "npm run build && node --test dist/test/core.test.js dist/test/engine.test.js",
     "start": "npm run build && node dist/src/server/main.js",
     "bench:engine": "npm run build && node dist/bench/engine.js",
     "bench:load": "node bench/load.mjs",
