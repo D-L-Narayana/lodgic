@@ -28,15 +28,44 @@ export const CITIES: readonly CityDef[] = [
   { name: "Jaipur", country: "India", currency: "INR", centre: { lat: 26.9124, lng: 75.7873 }, priceLevel: 0.85 },
   { name: "Hyderabad", country: "India", currency: "INR", centre: { lat: 17.385, lng: 78.4867 }, priceLevel: 0.95 },
   { name: "Visakhapatnam", country: "India", currency: "INR", centre: { lat: 17.6868, lng: 83.2185 }, priceLevel: 0.7 },
+  { name: "Chennai", country: "India", currency: "INR", centre: { lat: 13.0827, lng: 80.2707 }, priceLevel: 0.95 },
+  { name: "Kolkata", country: "India", currency: "INR", centre: { lat: 22.5726, lng: 88.3639 }, priceLevel: 0.85 },
+  { name: "Pune", country: "India", currency: "INR", centre: { lat: 18.5204, lng: 73.8567 }, priceLevel: 0.9 },
+  { name: "Kochi", country: "India", currency: "INR", centre: { lat: 9.9312, lng: 76.2673 }, priceLevel: 0.85 },
+  { name: "Udaipur", country: "India", currency: "INR", centre: { lat: 24.5854, lng: 73.7125 }, priceLevel: 1.0 },
+  { name: "Varanasi", country: "India", currency: "INR", centre: { lat: 25.3176, lng: 82.9739 }, priceLevel: 0.7 },
+  { name: "Manali", country: "India", currency: "INR", centre: { lat: 32.2432, lng: 77.1892 }, priceLevel: 0.8 },
+  { name: "Rishikesh", country: "India", currency: "INR", centre: { lat: 30.0869, lng: 78.2676 }, priceLevel: 0.7 },
   { name: "Amsterdam", country: "Netherlands", currency: "EUR", centre: { lat: 52.3676, lng: 4.9041 }, priceLevel: 3.2 },
   { name: "London", country: "United Kingdom", currency: "GBP", centre: { lat: 51.5072, lng: -0.1276 }, priceLevel: 3.6 },
+  { name: "Paris", country: "France", currency: "EUR", centre: { lat: 48.8566, lng: 2.3522 }, priceLevel: 3.4 },
+  { name: "Barcelona", country: "Spain", currency: "EUR", centre: { lat: 41.3874, lng: 2.1686 }, priceLevel: 2.6 },
+  { name: "Rome", country: "Italy", currency: "EUR", centre: { lat: 41.9028, lng: 12.4964 }, priceLevel: 2.8 },
+  { name: "Lisbon", country: "Portugal", currency: "EUR", centre: { lat: 38.7223, lng: -9.1393 }, priceLevel: 2.2 },
+  { name: "Berlin", country: "Germany", currency: "EUR", centre: { lat: 52.52, lng: 13.405 }, priceLevel: 2.4 },
+  { name: "Prague", country: "Czechia", currency: "EUR", centre: { lat: 50.0755, lng: 14.4378 }, priceLevel: 2.0 },
+  { name: "Istanbul", country: "Türkiye", currency: "EUR", centre: { lat: 41.0082, lng: 28.9784 }, priceLevel: 1.6 },
+  { name: "Manchester", country: "United Kingdom", currency: "GBP", centre: { lat: 53.4808, lng: -2.2426 }, priceLevel: 2.4 },
   { name: "Singapore", country: "Singapore", currency: "SGD", centre: { lat: 1.3521, lng: 103.8198 }, priceLevel: 3.0 },
   { name: "Dubai", country: "United Arab Emirates", currency: "AED", centre: { lat: 25.2048, lng: 55.2708 }, priceLevel: 2.8 },
   { name: "Tokyo", country: "Japan", currency: "JPY", centre: { lat: 35.6762, lng: 139.6503 }, priceLevel: 2.6 },
+  { name: "Kyoto", country: "Japan", currency: "JPY", centre: { lat: 35.0116, lng: 135.7681 }, priceLevel: 2.4 },
+  { name: "Bangkok", country: "Thailand", currency: "USD", centre: { lat: 13.7563, lng: 100.5018 }, priceLevel: 1.3 },
+  { name: "Bali", country: "Indonesia", currency: "USD", centre: { lat: -8.4095, lng: 115.1889 }, priceLevel: 1.2 },
+  { name: "Kuala Lumpur", country: "Malaysia", currency: "USD", centre: { lat: 3.139, lng: 101.6869 }, priceLevel: 1.2 },
+  { name: "Hong Kong", country: "Hong Kong", currency: "USD", centre: { lat: 22.3193, lng: 114.1694 }, priceLevel: 3.0 },
+  { name: "Seoul", country: "South Korea", currency: "USD", centre: { lat: 37.5665, lng: 126.978 }, priceLevel: 2.3 },
+  { name: "Sydney", country: "Australia", currency: "USD", centre: { lat: -33.8688, lng: 151.2093 }, priceLevel: 2.9 },
+  { name: "New York", country: "United States", currency: "USD", centre: { lat: 40.7128, lng: -74.006 }, priceLevel: 4.2 },
+  { name: "San Francisco", country: "United States", currency: "USD", centre: { lat: 37.7749, lng: -122.4194 }, priceLevel: 4.0 },
+  { name: "Toronto", country: "Canada", currency: "USD", centre: { lat: 43.6532, lng: -79.3832 }, priceLevel: 2.6 },
+  { name: "Cape Town", country: "South Africa", currency: "USD", centre: { lat: -33.9249, lng: 18.4241 }, priceLevel: 1.5 },
+  { name: "Doha", country: "Qatar", currency: "AED", centre: { lat: 25.2854, lng: 51.531 }, priceLevel: 2.6 },
 ];
 
 const NAME_A = ["Grand", "Royal", "Lotus", "Coastal", "Urban", "Heritage", "Harbour", "Garden", "Summit", "Palm", "Azure", "Amber", "Cedar", "Ivory", "Monsoon", "Saffron", "Sapphire", "Silver", "Sunrise", "Velvet"];
 const NAME_B = ["Residency", "Retreat", "Suites", "Inn", "Palace", "House", "Lodge", "Plaza", "Court", "Towers", "Villas", "Boutique", "Stay", "Haven", "Manor"];
+const NAME_SUFFIX = ["Central", "Riverside", "Old Town", "Marina", "Garden", "Hills", "Park", "Seafront", "Downtown", "Station", "Heights", "Bay"];
 const ROOM_NAMES: readonly [string, number, number][] = [
   ["Standard Room", 2, 1.0],
   ["Deluxe Room", 2, 1.35],
@@ -67,7 +96,7 @@ const INR_TO: Readonly<Record<CurrencyCode, number>> = {
 const EXP: Readonly<Record<CurrencyCode, number>> = { INR: 2, USD: 2, EUR: 2, GBP: 2, JPY: 0, KWD: 3, SGD: 2, AED: 2 };
 
 export function seedHotels(opts: SeedOptions = {}): Hotel[] {
-  const perCity = opts.hotelsPerCity ?? 120;
+  const perCity = opts.hotelsPerCity ?? 100;
   const next = rng(opts.seed ?? 42);
   const pick = <T>(arr: readonly T[]): T => arr[Math.floor(next() * arr.length)]!;
   const hotels: Hotel[] = [];
@@ -77,7 +106,7 @@ export function seedHotels(opts: SeedOptions = {}): Hotel[] {
     for (let i = 0; i < perCity; i++) {
       const id = `h_${city.name.toLowerCase().replace(/\s+/g, "-")}_${i + 1}`;
       let name = `${pick(NAME_A)} ${pick(NAME_B)}`;
-      if (usedNames.has(`${city.name}|${name}`)) name = `${name} ${city.name} ${i + 1}`;
+      for (let k = 0; usedNames.has(`${city.name}|${name}`); k++) name = `${name.split(" ").slice(0, 2).join(" ")} ${NAME_SUFFIX[(i + k) % NAME_SUFFIX.length]}`;
       usedNames.add(`${city.name}|${name}`);
 
       const u = next();

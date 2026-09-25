@@ -6,6 +6,16 @@ import { SearchService, type SearchServiceOptions } from "./search.js";
 import { seedHotels, type SeedOptions } from "./seed.js";
 import type { Hotel, Reservation } from "./types.js";
 
+/** FNV-1a 32-bit. */
+export function hashString(str: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
 export interface EngineOptions extends SeedOptions {
   readonly today?: string;
   readonly now?: () => number;
@@ -32,9 +42,27 @@ export class Engine {
     this.today = opts.today ?? "2026-01-01";
     this.hotels = seedHotels(opts);
     this.hotelById = new Map(this.hotels.map((h) => [h.id, h]));
-    this.availability = new AvailabilityIndex();
+    const startDay = isoToDay(this.today);
+    const fraction = opts.preloadOccupancy ?? 0;
+    this.availability = new AvailabilityIndex(
+      fraction > 0
+        ? (roomTypeId, tree, capacity) => {
+            // Deterministic pre-sold stays derived from the room-type id, applied when the tree is first touched.
+            let s = (hashString(roomTypeId) ^ ((opts.seed ?? 42) >>> 0)) >>> 0;
+            const rnd = (): number => {
+              s = (s * 1664525 + 1013904223) >>> 0;
+              return s / 4294967296;
+            };
+            const stays = Math.floor(capacity * fraction * 40);
+            for (let i = 0; i < stays; i++) {
+              const d = startDay + Math.floor(rnd() * (HORIZON_DAYS - startDay - 8));
+              const nights = 1 + Math.floor(rnd() * 5);
+              if (tree.rangeMin(d, d + nights) >= 1) tree.rangeAdd(d, d + nights, -1);
+            }
+          }
+        : undefined,
+    );
     for (const h of this.hotels) for (const r of h.roomTypes) this.availability.addRoomType(r.id, r.totalUnits);
-    if (opts.preloadOccupancy) this.preload(opts.preloadOccupancy, opts.seed ?? 42);
 
     this.search = new SearchService(this.hotels, this.availability, { ...opts.search, today: this.today, now });
     this.payments = opts.payments ?? new MockPaymentGateway(now);
@@ -50,23 +78,4 @@ export class Engine {
     });
   }
 
-  /** Deterministically pre-sell inventory so the demo shows realistic scarcity. */
-  private preload(fraction: number, seed: number): void {
-    let s = seed >>> 0;
-    const rnd = (): number => {
-      s = (s * 1664525 + 1013904223) >>> 0;
-      return s / 4294967296;
-    };
-    const start = isoToDay(this.today);
-    for (const h of this.hotels) {
-      for (const r of h.roomTypes) {
-        const stays = Math.floor(r.totalUnits * fraction * 40); // ~40 stays per unit per horizon
-        for (let i = 0; i < stays; i++) {
-          const d = start + Math.floor(rnd() * (HORIZON_DAYS - start - 8));
-          const nights = 1 + Math.floor(rnd() * 5);
-          this.availability.hold(r.id, d, d + nights, 1); // ignore failures: already sold out
-        }
-      }
-    }
-  }
 }

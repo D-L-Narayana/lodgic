@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+/* ---------- Design tokens: "coastal editorial" — warm sand surfaces, deep lagoon accent ---------- */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: oklch(98.2% 0.008 80);
+  --bg-2: oklch(96% 0.012 80);
+  --card: oklch(100% 0 0);
+  --line: oklch(90% 0.012 80);
+  --ink: oklch(22% 0.03 230);
+  --ink-2: oklch(45% 0.03 230);
+  --ink-3: oklch(60% 0.025 230);
+  --accent: oklch(46% 0.085 205);
+  --accent-ink: oklch(99% 0 0);
+  --accent-soft: oklch(94% 0.03 205);
+  --coral: oklch(68% 0.16 35);
+  --coral-soft: oklch(95% 0.04 35);
+  --ok: oklch(55% 0.14 150);
+  --ok-soft: oklch(94% 0.05 150);
+  --gold: oklch(75% 0.13 85);
+  --shadow: 0 1px 2px oklch(0% 0 0 / 0.04), 0 8px 24px -12px oklch(20% 0.05 230 / 0.18);
+  --shadow-lg: 0 24px 60px -24px oklch(20% 0.05 230 / 0.35);
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: oklch(17% 0.02 230);
+  --bg-2: oklch(20% 0.02 230);
+  --card: oklch(23% 0.022 230);
+  --line: oklch(31% 0.02 230);
+  --ink: oklch(95% 0.01 80);
+  --ink-2: oklch(76% 0.015 80);
+  --ink-3: oklch(62% 0.015 80);
+  --accent: oklch(78% 0.09 195);
+  --accent-ink: oklch(18% 0.03 230);
+  --accent-soft: oklch(30% 0.04 205);
+  --coral: oklch(76% 0.14 35);
+  --coral-soft: oklch(32% 0.05 35);
+  --ok: oklch(75% 0.14 150);
+  --ok-soft: oklch(30% 0.05 150);
+  --gold: oklch(80% 0.12 85);
+  --shadow: 0 1px 2px oklch(0% 0 0 / 0.3), 0 8px 24px -12px oklch(0% 0 0 / 0.5);
+  --shadow-lg: 0 24px 60px -24px oklch(0% 0 0 / 0.7);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg2: var(--bg-2);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink2: var(--ink-2);
+  --color-ink3: var(--ink-3);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-coral: var(--coral);
+  --color-coral-soft: var(--coral-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-gold: var(--gold);
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Satoshi", "Inter", system-ui, sans-serif;
+  --shadow-card: var(--shadow);
+  --shadow-float: var(--shadow-lg);
+  --radius-xl2: 1.25rem;
+}
+
+html {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+body {
+  margin: 0;
+  min-height: 100dvh;
+}
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+  letter-spacing: -0.015em;
+  font-weight: 500;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+::selection { background: var(--accent-soft); }
+button, input, select, textarea { font: inherit; color: inherit; }
+img { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* ---------- Components ---------- */
+.container-x { width: 100%; max-width: 76rem; margin-inline: auto; padding-inline: clamp(1rem, 3vw, 2rem); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-xl2); box-shadow: var(--shadow); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; height: 2.75rem; padding: 0 1.1rem; border-radius: .8rem; font-weight: 500; font-size: .9375rem; border: 1px solid transparent; transition: transform .15s ease, background .15s ease, box-shadow .15s ease, border-color .15s ease; cursor: pointer; white-space: nowrap; }
+.btn:active { transform: translateY(1px) scale(.99); }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn-primary { background: var(--accent); color: var(--accent-ink); box-shadow: 0 6px 18px -8px var(--accent); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { background: transparent; border-color: var(--line); color: var(--ink); }
+.btn-ghost:hover { background: var(--bg-2); }
+.btn-soft { background: var(--accent-soft); color: var(--ink); }
+.btn-sm { height: 2.25rem; padding: 0 .85rem; font-size: .875rem; border-radius: .65rem; }
+.input { height: 2.75rem; width: 100%; padding: 0 .85rem; border-radius: .8rem; border: 1px solid var(--line); background: var(--card); color: var(--ink); transition: border-color .15s, box-shadow .15s; }
+.input:hover { border-color: var(--ink-3); }
+.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.label { display: block; font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: .35rem; }
+.chip { display: inline-flex; align-items: center; gap: .35rem; height: 1.75rem; padding: 0 .65rem; border-radius: 999px; font-size: .8125rem; font-weight: 500; background: var(--bg-2); color: var(--ink-2); border: 1px solid var(--line); }
+.chip-accent { background: var(--accent-soft); color: var(--ink); border-color: transparent; }
+.chip-coral { background: var(--coral-soft); color: var(--ink); border-color: transparent; }
+.chip-ok { background: var(--ok-soft); color: var(--ink); border-color: transparent; }
+.eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.muted { color: var(--ink-2); }
+.faint { color: var(--ink-3); }
+.tabular { font-variant-numeric: tabular-nums; }
+.divider { height: 1px; background: var(--line); }
+
+/* skeleton */
+.skeleton { position: relative; overflow: hidden; background: var(--bg-2); border-radius: .75rem; }
+.skeleton::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, oklch(100% 0 0 / .35), transparent); transform: translateX(-100%); animation: shimmer 1.4s infinite; }
+[data-theme="dark"] .skeleton::after { background: linear-gradient(90deg, transparent, oklch(100% 0 0 / .06), transparent); }
+@keyframes shimmer { to { transform: translateX(100%); } }
+
+/* motion */
+.rise { animation: rise .5s cubic-bezier(.2,.7,.2,1) both; }
+.rise-d1 { animation-delay: .06s } .rise-d2 { animation-delay: .12s } .rise-d3 { animation-delay: .18s } .rise-d4 { animation-delay: .24s }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.pop { animation: pop .45s cubic-bezier(.2,.9,.3,1.3) both; }
+@keyframes pop { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: scale(1); } }
+.hover-lift { transition: transform .2s ease, box-shadow .2s ease; }
+.hover-lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.fade-in { animation: fade .3s ease both; }
+@keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+
+/* hero texture */
+.hero-bg { background:
+  radial-gradient(60rem 30rem at 15% -10%, var(--accent-soft), transparent 60%),
+  radial-gradient(40rem 24rem at 95% 0%, var(--coral-soft), transparent 55%),
+  var(--bg); }
+
+/* day picker overrides */
+.rdp-root { --rdp-accent-color: var(--accent); --rdp-accent-background-color: var(--accent-soft); --rdp-day-height: 2.4rem; --rdp-day-width: 2.4rem; --rdp-day_button-border-radius: .7rem; --rdp-range_start-date-background-color: var(--accent); --rdp-range_end-date-background-color: var(--accent); --rdp-range_middle-background-color: var(--accent-soft); --rdp-selected-border: 2px solid var(--accent); --rdp-today-color: var(--coral); font-size: .875rem; }
+.rdp-range_start .rdp-day_button, .rdp-range_end .rdp-day_button { color: var(--accent-ink); }
+
+/* leaflet tweaks */
+.leaflet-container { font: inherit; border-radius: var(--radius-xl2); }
+[data-theme="dark"] .leaflet-tile { filter: brightness(.7) contrast(1.05) saturate(.7); }
+.price-pin { background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; font-weight: 700; font-size: 12px; box-shadow: var(--shadow); white-space: nowrap; transform: translate(-50%, -100%); }
+.price-pin.active { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+/* scrollbar-less horizontal rails */
+.rail { display: flex; gap: .75rem; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: .25rem; }
+.rail::-webkit-scrollbar { display: none; }
+.rail > * { scroll-snap-align: start; flex: 0 0 auto; }
+
+/* range slider */
+input[type="range"] { accent-color: var(--accent); width: 100%; }

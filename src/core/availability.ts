@@ -98,24 +98,49 @@ export interface HoldResult {
  * take the last unit (the JavaScript engine gives us a single-threaded critical
  * section; a database would use `SELECT ... FOR UPDATE` or a unique constraint).
  */
+export type TreeInitialiser = (roomTypeId: string, tree: MinSegmentTree, capacity: number) => void;
+
 export class AvailabilityIndex {
   private readonly trees = new Map<string, MinSegmentTree>();
   private readonly capacity = new Map<string, number>();
+  private readonly horizon = new Map<string, number>();
+
+  /**
+   * @param initialise optional hook run once when a room type's tree is materialised —
+   *        used to apply pre-sold inventory deterministically. Trees are created lazily on
+   *        first access, so a 4,000-hotel catalogue costs memory only for room types that
+   *        a search or booking actually touches.
+   */
+  constructor(private readonly initialise?: TreeInitialiser) {}
 
   addRoomType(roomTypeId: string, totalUnits: number, horizonDays: number = HORIZON_DAYS): void {
-    if (this.trees.has(roomTypeId)) throw new Error(`room type already registered: ${roomTypeId}`);
-    const init = new Int32Array(horizonDays).fill(totalUnits);
-    this.trees.set(roomTypeId, new MinSegmentTree(init));
+    if (this.capacity.has(roomTypeId)) throw new Error(`room type already registered: ${roomTypeId}`);
     this.capacity.set(roomTypeId, totalUnits);
+    this.horizon.set(roomTypeId, horizonDays);
   }
 
   has(roomTypeId: string): boolean {
-    return this.trees.has(roomTypeId);
+    return this.capacity.has(roomTypeId);
+  }
+
+  /** Number of room types whose tree has actually been materialised. */
+  get materialised(): number {
+    return this.trees.size;
+  }
+
+  get registered(): number {
+    return this.capacity.size;
   }
 
   private tree(roomTypeId: string): MinSegmentTree {
-    const t = this.trees.get(roomTypeId);
-    if (!t) throw new Error(`unknown room type: ${roomTypeId}`);
+    let t = this.trees.get(roomTypeId);
+    if (!t) {
+      const cap = this.capacity.get(roomTypeId);
+      if (cap === undefined) throw new Error(`unknown room type: ${roomTypeId}`);
+      t = new MinSegmentTree(new Int32Array(this.horizon.get(roomTypeId) ?? HORIZON_DAYS).fill(cap));
+      this.trees.set(roomTypeId, t);
+      this.initialise?.(roomTypeId, t, cap);
+    }
     return t;
   }
 

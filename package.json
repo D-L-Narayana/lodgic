@@ -1,10 +1,12 @@
 {
   "name": "lodgic",
   "version": "1.0.0",
-  "description": "Hotel search & reservation engine: availability index, dynamic pricing, learning-to-rank search, double-booking-safe reservations, idempotent payments and an LRU/TTL cache. TypeScript, zero runtime dependencies.",
+  "description": "Hotel search & reservation engine with a full booking product on top: segment-tree availability, dynamic pricing, learning-to-rank search, idempotent reservations, mock payments, LRU/TTL cache, REST API (Node + Vercel functions), React web app with ops dashboard. TypeScript, zero runtime dependencies in the engine.",
   "type": "module",
   "license": "MIT",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && node --test dist/test/core.test.js dist/test/engine.test.js",
@@ -13,11 +15,30 @@
     "bench:load": "node bench/load.mjs",
     "web:dev": "vite web",
     "web:build": "vite build web",
-    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p web/tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p web/tsconfig.json --noEmit",
+    "api:build": "esbuild src/server/vercel.ts --bundle --platform=node --target=node20 --format=cjs --outfile=web/dist/api/index.js && node -e \"const fs=require('fs');const f='web/dist/api/index.js';fs.appendFileSync(f,'\\nmodule.exports = module.exports.default;\\n')\"",
+    "deploy:build": "npm run web:build && npm run api:build && cp web/vercel.json web/dist/vercel.json",
+    "web:preview": "vite preview web"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/leaflet": "^1.9.22",
     "@types/node": "^20.14.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^4.7.0",
     "autocannon": "^8.0.0",
+    "date-fns": "^4.4.0",
+    "esbuild": "^0.28.2",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^1.48.0",
+    "react": "^19.3.0",
+    "react-day-picker": "^10.0.1",
+    "react-dom": "^19.3.0",
+    "react-leaflet": "^5.0.0",
+    "react-router-dom": "^7.18.4",
+    "recharts": "^3.10.1",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5.5.0",
     "vite": "^5.4.0"
   }

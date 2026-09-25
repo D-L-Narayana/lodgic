@@ -86,9 +86,15 @@ const FEATURE_LABEL: Readonly<Record<FeatureName, [positive: string, negative: s
   breakfast: ["breakfast included", "breakfast not included"],
 };
 
-/** Human-readable reasons for the top contributing features. */
+/**
+ * Human-readable reasons for the top contributing features: strengths first (largest positive
+ * contributions), then — only if there are not enough strengths — the mildest weaknesses, so the
+ * card reads like a recommendation rather than a warning.
+ */
 export function explain(scored: ScoredCandidate, limit: number = 2): string[] {
-  return scored.contributions.slice(0, limit).map((c) => {
+  const positives = scored.contributions.filter((c) => c.value >= 0);
+  const negatives = scored.contributions.filter((c) => c.value < 0).sort((a, b) => b.value - a.value);
+  return [...positives, ...negatives].slice(0, limit).map((c) => {
     const [pos, neg] = FEATURE_LABEL[c.feature];
     return c.value >= 0 ? pos : neg;
   });

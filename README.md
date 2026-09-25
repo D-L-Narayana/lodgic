@@ -1,19 +1,54 @@
-# Lodgic — hotel search & reservation engine
+# Lodgic — hotel search & reservation engine, with the product on top
 
 [![CI](https://github.com/D-L-Narayana/lodgic/actions/workflows/ci.yml/badge.svg)](https://github.com/D-L-Narayana/lodgic/actions/workflows/ci.yml)
-[![Live demo](https://img.shields.io/badge/live%20demo-lodgic--jade.vercel.app-0b3d91)](https://lodgic-jade.vercel.app)
+[![Live](https://img.shields.io/badge/live-lodgic--jade.vercel.app-0f5e6b)](https://lodgic-jade.vercel.app)
 ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)
-![zero runtime deps](https://img.shields.io/badge/runtime%20deps-0-brightgreen)
+![engine deps](https://img.shields.io/badge/engine%20runtime%20deps-0-brightgreen)
 ![tests](https://img.shields.io/badge/tests-26%20passing-blue)
 [![MIT](https://img.shields.io/badge/license-MIT-black)](LICENSE)
 
-The backend of an online-travel marketplace, built from first principles in TypeScript with **zero runtime dependencies**:
-an availability index, demand-based pricing with exact currency rounding, a learning-to-rank search, reservations that can
-never double-book, idempotent payments and an LRU/TTL cache — exposed as a JSON REST API **and** running entirely in the
-browser at **[lodgic-jade.vercel.app](https://lodgic-jade.vercel.app)** (same code, no server).
+**[lodgic-jade.vercel.app](https://lodgic-jade.vercel.app)** — search **4,000 hotels in 40 cities** with live availability, demand-based
+nightly prices and a learning-to-rank model that explains itself; hold, pay (mock) and manage bookings; watch the engine in an ops dashboard.
 
-> Why this project: search, availability, pricing, ranking and payments are the core systems of every travel platform.
-> Lodgic is my attempt to build small, correct, measured versions of each and wire them together properly.
+The engine (`src/core`) is pure TypeScript with **zero runtime dependencies**: a segment-tree availability index, integer-minor-unit pricing,
+k-way supplier-feed merge, LRU/TTL cache, idempotent double-booking-safe reservations and a mock PSP. The same bundle powers the REST API
+(Node `http` locally, a **Vercel serverless function** at `/api/*` in production) *and* runs inside the React web app, so every page works
+offline-first with no backend round-trip.
+
+<p align="center">
+  <img src="docs/screenshots/home-dark-desktop.jpg" width="49%" alt="Landing page, dark theme" />
+  <img src="docs/screenshots/results-desktop.jpg" width="49%" alt="Results with filters, ranking explanations and live prices" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/hotel-desktop.jpg" width="49%" alt="Hotel page with gallery, room types and live price breakdown" />
+  <img src="docs/screenshots/admin-desktop.jpg" width="49%" alt="Ops dashboard: occupancy, latency, cache hit rate, ranker weights" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/map-desktop.jpg" width="32%" alt="Map view with price pins" />
+  <img src="docs/screenshots/checkout-desktop.jpg" width="32%" alt="Checkout with mock payment" />
+  <img src="docs/screenshots/how-desktop.jpg" width="32%" alt="How it works: architecture diagram" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/home-mobile.jpg" width="19%" alt="Mobile landing" />
+  <img src="docs/screenshots/results-mobile.jpg" width="19%" alt="Mobile results" />
+  <img src="docs/screenshots/hotel-mobile.jpg" width="19%" alt="Mobile hotel page" />
+  <img src="docs/screenshots/admin-mobile.jpg" width="19%" alt="Mobile ops dashboard" />
+</p>
+
+## The product
+
+| Page | What you can do |
+| --- | --- |
+| **Landing** `/` | Hero search with destination autocomplete (40 cities), two-month date-range picker, guests/rooms stepper; featured destinations |
+| **Results** `/search` | Filters (max nightly price, stars, 10 amenities, free cancellation, display currency), 5 sort orders, traveller-profile personalisation, **list ⇄ map** toggle (Leaflet/OpenStreetMap price pins), skeleton loaders, empty & error states, ranking explanations on every card |
+| **Hotel** `/hotel/:id` | Photo gallery, room types with occupancy-for-your-dates, **live price breakdown** per night (weekend/season/demand, LOS discount, taxes) |
+| **Checkout** `/checkout/…` | Guest + mock card form (Luhn-validated; `4242…` succeeds, `4000 0000 0000 0002` declines), step-by-step hold → intent → confirm with one idempotency key per attempt |
+| **Confirmation** & **My bookings** | Confirmation with `.ics` calendar export; bookings list with status chips, cancel & refund / release hold |
+| **Ops** `/admin` | Occupancy by week from the segment trees, search latency p50/p95, cache hit rate, materialised-tree counter, LTR weights, star mix, reservations table — live for your session |
+| **How it works** `/how-it-works` | Architecture diagram and the six ideas behind the engine |
+
+Design: warm sand surfaces with a deep-lagoon accent, Fraunces display + Satoshi body, light/dark themes (`prefers-color-scheme` + toggle),
+fluid type, 4-px spacing, reduced-motion aware micro-animations, keyboard-navigable combobox/dialogs with ARIA roles, responsive from 360 px up.
 
 ## What it does
 
@@ -27,7 +62,8 @@ browser at **[lodgic-jade.vercel.app](https://lodgic-jade.vercel.app)** (same co
 | **Caching** | LRU + TTL over `Map` insertion order (O(1) get/set/evict), canonical cache keys, hit/miss/eviction stats, city-scoped invalidation whenever a reservation changes | `src/core/cache.ts` |
 | **Supplier feeds** | k-way merge of sorted price feeds with a binary heap (O(N log k)); de-duplication of the same property across suppliers (normalised name + haversine radius), keeping the cheapest offer; supplier stop-sell calendar parsing with interval merging | `src/core/feeds.ts`, `src/core/calendar.ts` |
 | **REST API** | `node:http` + 60-line router: request ids, JSON errors with codes, input validation, CORS, `/metrics` with p50/p95/p99, JSONL audit log of reservation changes | `src/server/` |
-| **Web demo** | Vite + vanilla TypeScript UI that imports the engine directly — search, price breakdown, hold & pay, cancel & refund, live telemetry | `web/` |
+| **Web app** | React 19 + Vite + Tailwind v4 + react-router; imports the engine directly (in-browser) and can talk to `/api` | `web/` |
+| **Serverless API** | `src/server/vercel.ts` bundled by esbuild to `api/index.js`, deployed with the static build; `vercel.json` rewrites `/api/*` and SPA routes | `src/server/vercel.ts` |
 
 ## Run it
 
@@ -35,14 +71,15 @@ browser at **[lodgic-jade.vercel.app](https://lodgic-jade.vercel.app)** (same co
 git clone https://github.com/D-L-Narayana/lodgic.git && cd lodgic
 npm ci                 # dev dependencies only: typescript, vite, autocannon, @types/node
 npm test               # tsc + node:test — 26 tests incl. a 500-way concurrent double-booking race
-npm start              # REST API on http://localhost:8080 (1,440 seeded hotels)
-npm run web:dev        # browser demo on http://localhost:5173
+npm start              # REST API on http://localhost:8080 (4,000 seeded hotels, 12,079 room types)
+npm run web:dev        # web app on http://localhost:5173 (in-browser engine)
+npm run deploy:build   # web/dist = static app + api/index.js serverless function + vercel.json  → `vercel deploy --prebuilt`-style upload
 npm run bench:engine   # micro-benchmarks
 npm run bench:load     # autocannon load test against a running server
 python3 ml/train_ranker.py   # retrain the ranker (numpy only) -> src/core/model.ts
 ```
 
-Environment for `npm start`: `PORT` (8080), `HOTELS_PER_CITY` (120), `PRELOAD_OCCUPANCY` (0.35), `SEARCH_CACHE_TTL_MS` (30000), `TODAY`, `LOG_REQUESTS=1`.
+Environment for `npm start`: `PORT` (8080), `HOTELS_PER_CITY` (100), `PRELOAD_OCCUPANCY` (0.35), `SEARCH_CACHE_TTL_MS` (30000), `TODAY`, `LOG_REQUESTS=1`.
 
 ### API
 
@@ -82,7 +119,8 @@ Design decisions worth reading in the code:
 - **Idempotency everywhere a client can retry.** Reservations, payment intents and confirms are all safe to replay; the key is the client's, not the server's.
 - **Cache invalidation is scoped, not global.** A booking invalidates only searches for that hotel's city; everything else keeps its 30 s TTL.
 - **Explainable ranking.** Every hit carries the two largest model contributions in plain English so a product manager can see *why* a hotel ranks where it does.
-- **One engine, two hosts.** `src/core` has no Node or DOM dependency, so the same code runs in the API and in the browser demo.
+- **One engine, three hosts.** `src/core` has no Node or DOM dependency, so the same code runs in the Node API, in the Vercel function and in the browser.
+- **Lazy availability trees.** 12,079 room types are registered at boot, but a segment tree is only materialised the first time a search or booking touches it (with deterministic pre-sold inventory applied at that moment). Boot is ~40 ms and memory grows with the cities you actually use — the Ops page shows the counter.
 
 ## Learning-to-rank model
 
@@ -109,7 +147,7 @@ Measured on the 2-vCPU sandbox that runs CI, Node v20.20 — treat as relative n
 `npm run bench:engine` and `npm run bench:load`; raw output in [`bench/engine-results.json`](bench/engine-results.json) and
 [`bench/load-results.json`](bench/load-results.json).
 
-**Engine (single thread, 1,440 hotels / 4,339 room types)**
+**Engine (single thread; measured on the earlier 1,440-hotel / 4,339-room-type catalogue — per-city work is unchanged at 100–120 hotels)**
 
 | Operation | Throughput | Avg |
 | --- | ---: | ---: |
@@ -149,7 +187,8 @@ an end-to-end booking over HTTP, and the 500-request double-booking race.
 ```
 src/core/      engine (types, money, calendar, availability, pricing, feeds, cache, ranking, model, seed, search, payments, reservations, engine)
 src/server/    app.ts (router + handlers + metrics), main.ts (entry point, JSONL audit log, hold sweeper)
-web/           Vite + TypeScript demo (index.html, src/main.ts, src/styles.css)
+web/           React app: src/pages (Landing, Results, Hotel, Checkout, Bookings/Confirmation, Admin, HowItWorks), src/components (SearchBar, MapView, ui), src/lib/engine.ts
+docs/          screenshots used in this README
 test/          node:test suites (core.test.ts, engine.test.ts)
 bench/         engine.ts micro-benchmarks, load.mjs autocannon runner, results
 ml/            train_ranker.py, metrics.json
@@ -157,7 +196,7 @@ ml/            train_ranker.py, metrics.json
 
 ## Roadmap
 
-- Persist availability + reservations in PostgreSQL (per-night unique constraint) and run the API under `node:cluster`
+- Persist availability + reservations in PostgreSQL (per-night unique constraint) so the serverless API keeps state across instances; run the Node API under `node:cluster`
 - Replace the mock PSP with a real sandbox integration and webhooks
 - Pairwise/listwise LTR (LambdaMART) with inverse-propensity weighting for the position bias
 - Multi-supplier ingestion pipeline using the feed merge/dedupe primitives
